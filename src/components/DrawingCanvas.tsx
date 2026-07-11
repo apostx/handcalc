@@ -33,6 +33,9 @@ export function DrawingCanvas({ tool, ref }: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const strokesRef = useRef<Stroke[]>([]);
   const activeStrokeRef = useRef<Stroke | null>(null);
+  const activePointerIdRef = useRef<number | null>(null);
+  const activePointerTypeRef = useRef<string | null>(null);
+  const penSeenRef = useRef(false);
   const cssSizeRef = useRef({ width: 0, height: 0 });
 
   const toolRef = useRef(tool);
@@ -132,7 +135,28 @@ export function DrawingCanvas({ tool, ref }: DrawingCanvasProps) {
 
   function handlePointerDown(e: ReactPointerEvent<HTMLCanvasElement>) {
     if (e.button !== 0 && e.pointerType === "mouse") return;
+
+    if (e.pointerType === "pen") penSeenRef.current = true;
+
+    // Palm rejection: once a stylus has been used, finger/palm touches
+    // no longer draw.
+    if (e.pointerType === "touch" && penSeenRef.current) return;
+
+    if (activeStrokeRef.current) {
+      if (e.pointerType === "pen" && activePointerTypeRef.current === "touch") {
+        // The palm landed before the pen tip: discard the palm stroke and
+        // let the pen take over.
+        activeStrokeRef.current = null;
+        redraw();
+      } else {
+        // Ignore additional simultaneous pointers (second finger, palm).
+        return;
+      }
+    }
+
     e.currentTarget.setPointerCapture(e.pointerId);
+    activePointerIdRef.current = e.pointerId;
+    activePointerTypeRef.current = e.pointerType;
 
     const stroke: Stroke = {
       tool: toolRef.current,
@@ -145,6 +169,7 @@ export function DrawingCanvas({ tool, ref }: DrawingCanvasProps) {
   }
 
   function handlePointerMove(e: ReactPointerEvent<HTMLCanvasElement>) {
+    if (e.pointerId !== activePointerIdRef.current) return;
     const stroke = activeStrokeRef.current;
     if (!stroke) return;
 
@@ -163,6 +188,10 @@ export function DrawingCanvas({ tool, ref }: DrawingCanvasProps) {
   }
 
   function handlePointerEnd(e: ReactPointerEvent<HTMLCanvasElement>) {
+    if (e.pointerId !== activePointerIdRef.current) return;
+    activePointerIdRef.current = null;
+    activePointerTypeRef.current = null;
+
     const stroke = activeStrokeRef.current;
     if (!stroke) return;
     activeStrokeRef.current = null;

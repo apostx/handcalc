@@ -241,6 +241,9 @@ body {
   border: 1px solid var(--border);
   border-radius: 12px;
   touch-action: none; /* prevents page scroll while drawing on touch devices */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none; /* no long-press callout on iOS while drawing */
   cursor: crosshair;
 }
 
