@@ -17,6 +17,7 @@ import { getNextExercise } from "./generators";
 import { createProvider } from "./providers/providerFactory";
 import type { AiProviderName } from "./providers/types";
 import { AiResponseParseError } from "./ai/parseAiResponse";
+import { AiRequestError } from "./providers/types";
 import {
   exportCanvasImage,
   MAX_IMAGE_BYTES
@@ -132,6 +133,8 @@ export default function App({ initialProvider }: AppProps) {
     } catch (err) {
       if (err instanceof AiResponseParseError) {
         setError("The AI response could not be processed. Try again.");
+      } else if (err instanceof AiRequestError) {
+        setError(err.message);
       } else {
         setError("The AI request failed. Check your API key or try again later.");
       }

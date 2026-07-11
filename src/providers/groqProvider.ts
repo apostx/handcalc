@@ -1,6 +1,7 @@
 import { buildEvaluationPrompt } from "../ai/buildEvaluationPrompt";
 import { parseAiResponse } from "../ai/parseAiResponse";
 import type { AiEvaluationResult } from "../types/feedback";
+import { readApiErrorMessage } from "./httpError";
 import {
   AiRequestError,
   type AiEvaluationInput,
@@ -43,7 +44,7 @@ export class GroqProvider implements AiVisionProvider {
     });
 
     if (!response.ok) {
-      throw new AiRequestError(`Groq request failed (HTTP ${response.status}).`);
+      throw new AiRequestError(`Groq: ${await readApiErrorMessage(response)}`);
     }
 
     const data = await response.json();

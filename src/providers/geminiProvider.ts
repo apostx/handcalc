@@ -1,6 +1,7 @@
 import { buildEvaluationPrompt } from "../ai/buildEvaluationPrompt";
 import { parseAiResponse } from "../ai/parseAiResponse";
 import type { AiEvaluationResult } from "../types/feedback";
+import { readApiErrorMessage } from "./httpError";
 import {
   AiRequestError,
   type AiEvaluationInput,
@@ -44,7 +45,7 @@ export class GeminiProvider implements AiVisionProvider {
 
     if (!response.ok) {
       throw new AiRequestError(
-        `Gemini request failed (HTTP ${response.status}).`
+        `Gemini: ${await readApiErrorMessage(response)}`
       );
     }
 
