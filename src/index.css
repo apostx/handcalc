@@ -178,6 +178,24 @@ body {
   font-size: 0.85rem;
 }
 
+.share-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.share-row .btn {
+  flex-shrink: 0;
+}
+
+.share-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+  flex: 1;
+  min-width: 220px;
+}
+
 .prototype-warning {
   margin: 0;
   background: #fff7e0;

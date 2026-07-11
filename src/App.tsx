@@ -32,10 +32,17 @@ import type { AiEvaluationResult } from "./types/feedback";
 
 type Screen = "start" | "practice";
 
-export default function App() {
+type AppProps = {
+  /** Provider preselected by a share link. */
+  initialProvider?: AiProviderName;
+};
+
+export default function App({ initialProvider }: AppProps) {
   const [screen, setScreen] = useState<Screen>("start");
 
-  const [provider, setProvider] = useState<AiProviderName>("mock");
+  const [provider, setProvider] = useState<AiProviderName>(
+    initialProvider ?? "mock"
+  );
   const [rememberKey, setRememberKey] = useState(loadRememberFlag);
   const [apiKeys, setApiKeys] = useState<Record<AiProviderName, string>>(() => {
     const remember = loadRememberFlag();
@@ -144,7 +151,7 @@ export default function App() {
 
         <SettingsPanel
           provider={provider}
-          apiKey={apiKeys[provider]}
+          apiKeys={apiKeys}
           rememberKey={rememberKey}
           onProviderChange={setProvider}
           onApiKeyChange={handleApiKeyChange}
