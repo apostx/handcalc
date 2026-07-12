@@ -22,6 +22,20 @@ body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;
+  /* The page has no selectable content; blocking selection stops stylus
+     double-taps from being read as a double-click that selects text. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  /* Also drops the double-tap-to-zoom gesture that those taps can trigger. */
+  touch-action: manipulation;
+}
+
+/* Keep form fields (API key input) editable and selectable. */
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .app {
