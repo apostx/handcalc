@@ -1,4 +1,4 @@
-import type { AiProviderName } from "../providers/types";
+import { KEYED_PROVIDERS, type AiProviderName } from "../providers/types";
 
 // Keys are stored per provider so switching providers keeps each key.
 const keyFor = (provider: AiProviderName) => `handcalc:apiKey:${provider}`;
@@ -23,7 +23,7 @@ export function saveApiKey(provider: AiProviderName, apiKey: string): void {
 export function clearStoredApiKeys(): void {
   try {
     localStorage.removeItem(REMEMBER_KEY);
-    for (const provider of ["groq", "gemini", "mock"] as const) {
+    for (const provider of KEYED_PROVIDERS) {
       localStorage.removeItem(keyFor(provider));
     }
   } catch {

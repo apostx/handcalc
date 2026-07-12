@@ -1,10 +1,18 @@
 import { useRef, useState } from "react";
 import {
   ALL_PROVIDERS,
+  KEYED_PROVIDERS,
   PROVIDER_LABELS,
   type AiProviderName
 } from "../providers/types";
-import { buildShareUrl } from "../storage/shareLink";
+import { buildShareUrl, type ProviderKeys } from "../storage/shareLink";
+
+const KEY_PLACEHOLDERS: Record<AiProviderName, string> = {
+  groq: "gsk_...",
+  gemini: "AQ... or AIza...",
+  openrouter: "sk-or-...",
+  mock: ""
+};
 
 type SettingsPanelProps = {
   provider: AiProviderName;
@@ -29,21 +37,19 @@ export function SettingsPanel({
   const [copied, setCopied] = useState(false);
   const copyResetRef = useRef<number | undefined>(undefined);
 
-  const shareableKeys = {
-    groq: apiKeys.groq.trim(),
-    gemini: apiKeys.gemini.trim()
-  };
-  const hasShareableKey = Boolean(shareableKeys.groq || shareableKeys.gemini);
+  const shareableKeys: ProviderKeys = {};
+  for (const name of KEYED_PROVIDERS) {
+    const value = apiKeys[name].trim();
+    if (value) shareableKeys[name] = value;
+  }
+  const firstShareable = KEYED_PROVIDERS.find(name => shareableKeys[name]);
+  const hasShareableKey = firstShareable !== undefined;
 
   async function handleShare() {
     // Point the recipient at a provider that actually has a key.
     const shareProvider =
-      needsKey && apiKeys[provider].trim()
-        ? provider
-        : shareableKeys.groq
-          ? "groq"
-          : "gemini";
-    const url = buildShareUrl(shareableKeys, shareProvider);
+      needsKey && apiKeys[provider].trim() ? provider : firstShareable;
+    const url = buildShareUrl(shareableKeys, shareProvider ?? provider);
 
     try {
       await navigator.clipboard.writeText(url);
@@ -79,9 +85,7 @@ export function SettingsPanel({
               type="password"
               value={apiKey}
               onChange={e => onApiKeyChange(e.target.value)}
-              placeholder={
-                provider === "groq" ? "gsk_..." : "AIza..."
-              }
+              placeholder={KEY_PLACEHOLDERS[provider]}
               autoComplete="off"
             />
           </label>

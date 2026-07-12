@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "katex/dist/katex.min.css";
 import "./index.css";
 import App from "./App";
+import type { AiProviderName } from "./providers/types";
 import { saveApiKey, saveRememberFlag } from "./storage/apiKeyStorage";
 import { consumeSharedKeys } from "./storage/shareLink";
 
@@ -11,8 +12,9 @@ import { consumeSharedKeys } from "./storage/shareLink";
 const shared = consumeSharedKeys();
 if (shared) {
   saveRememberFlag(true);
-  if (shared.groq) saveApiKey("groq", shared.groq);
-  if (shared.gemini) saveApiKey("gemini", shared.gemini);
+  for (const [provider, key] of Object.entries(shared.keys)) {
+    if (key) saveApiKey(provider as AiProviderName, key);
+  }
 }
 
 createRoot(document.getElementById("root")!).render(

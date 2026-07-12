@@ -1,20 +1,25 @@
-import type { AiProviderName } from "../providers/types";
+import {
+  KEYED_PROVIDERS,
+  type AiProviderName,
+  type KeyedProvider
+} from "../providers/types";
 
 // API keys travel in the URL fragment (#share=...): the fragment is never
 // sent to the server or written to access logs, and it is consumed and
 // stripped from the address bar on first load. Base64url is encoding, not
 // encryption — anyone holding the full link can use the keys.
 
+export type ProviderKeys = Partial<Record<KeyedProvider, string>>;
+
 export type SharedKeys = {
   provider?: AiProviderName;
-  groq?: string;
-  gemini?: string;
+  keys: ProviderKeys;
 };
 
 type SharePayload = {
   v: 1;
   p?: string;
-  k: { groq?: string; gemini?: string };
+  k: ProviderKeys;
 };
 
 function encodeBase64Url(text: string): string {
@@ -34,12 +39,14 @@ function decodeBase64Url(encoded: string): string {
 }
 
 export function buildShareUrl(
-  keys: { groq?: string; gemini?: string },
+  keys: ProviderKeys,
   provider: AiProviderName
 ): string {
   const payload: SharePayload = { v: 1, p: provider, k: {} };
-  if (keys.groq) payload.k.groq = keys.groq;
-  if (keys.gemini) payload.k.gemini = keys.gemini;
+  for (const name of KEYED_PROVIDERS) {
+    const value = keys[name]?.trim();
+    if (value) payload.k[name] = value;
+  }
 
   const { origin, pathname, search } = window.location;
   return `${origin}${pathname}${search}#share=${encodeBase64Url(
@@ -67,18 +74,23 @@ export function consumeSharedKeys(): SharedKeys | null {
       return null;
     }
 
-    const shared: SharedKeys = {};
-    if (typeof payload.k.groq === "string" && payload.k.groq) {
-      shared.groq = payload.k.groq;
-    }
-    if (typeof payload.k.gemini === "string" && payload.k.gemini) {
-      shared.gemini = payload.k.gemini;
-    }
-    if (payload.p === "groq" || payload.p === "gemini") {
-      shared.provider = payload.p;
+    const keys: ProviderKeys = {};
+    for (const name of KEYED_PROVIDERS) {
+      const value = payload.k[name];
+      if (typeof value === "string" && value) keys[name] = value;
     }
 
-    return shared.groq || shared.gemini ? shared : null;
+    if (Object.keys(keys).length === 0) return null;
+
+    const shared: SharedKeys = { keys };
+    if (
+      payload.p === "groq" ||
+      payload.p === "gemini" ||
+      payload.p === "openrouter"
+    ) {
+      shared.provider = payload.p;
+    }
+    return shared;
   } catch {
     return null;
   }

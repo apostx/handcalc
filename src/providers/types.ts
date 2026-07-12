@@ -1,7 +1,7 @@
 import type { Exercise } from "../types/exercise";
 import type { AiEvaluationResult } from "../types/feedback";
 
-export type AiProviderName = "groq" | "gemini" | "mock";
+export type AiProviderName = "groq" | "gemini" | "openrouter" | "mock";
 
 export type AiEvaluationInput = {
   apiKey: string;
@@ -21,9 +21,20 @@ export interface AiVisionProvider {
 export class AiRequestError extends Error {}
 
 export const PROVIDER_LABELS: Record<AiProviderName, string> = {
-  groq: "Groq (Llama 4 Scout)",
-  gemini: "Google Gemini (2.5 Flash)",
+  groq: "Groq (Llama 4 Maverick) — free",
+  gemini: "Google Gemini (2.5 Flash) — needs billing",
+  openrouter: "OpenRouter (Gemma 4 vision) — free",
   mock: "Mock (testing, no API key needed)"
 };
 
-export const ALL_PROVIDERS: AiProviderName[] = ["groq", "gemini", "mock"];
+export const ALL_PROVIDERS: AiProviderName[] = [
+  "groq",
+  "openrouter",
+  "gemini",
+  "mock"
+];
+
+/** Providers that need a real API key (i.e. everything except mock). */
+export const KEYED_PROVIDERS = ["groq", "gemini", "openrouter"] as const;
+
+export type KeyedProvider = (typeof KEYED_PROVIDERS)[number];

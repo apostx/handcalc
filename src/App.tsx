@@ -15,7 +15,7 @@ import { LoadingOverlay } from "./components/LoadingOverlay";
 import { ErrorBox } from "./components/ErrorBox";
 import { getNextExercise } from "./generators";
 import { createProvider } from "./providers/providerFactory";
-import type { AiProviderName } from "./providers/types";
+import { KEYED_PROVIDERS, type AiProviderName } from "./providers/types";
 import { AiResponseParseError } from "./ai/parseAiResponse";
 import { AiRequestError } from "./providers/types";
 import {
@@ -47,9 +47,11 @@ export default function App({ initialProvider }: AppProps) {
   const [rememberKey, setRememberKey] = useState(loadRememberFlag);
   const [apiKeys, setApiKeys] = useState<Record<AiProviderName, string>>(() => {
     const remember = loadRememberFlag();
+    const load = (name: AiProviderName) => (remember ? loadApiKey(name) : "");
     return {
-      groq: remember ? loadApiKey("groq") : "",
-      gemini: remember ? loadApiKey("gemini") : "",
+      groq: load("groq"),
+      gemini: load("gemini"),
+      openrouter: load("openrouter"),
       mock: ""
     };
   });
@@ -76,8 +78,7 @@ export default function App({ initialProvider }: AppProps) {
     setRememberKey(remember);
     saveRememberFlag(remember);
     if (remember) {
-      saveApiKey("groq", apiKeys.groq);
-      saveApiKey("gemini", apiKeys.gemini);
+      for (const name of KEYED_PROVIDERS) saveApiKey(name, apiKeys[name]);
     }
   }
 
