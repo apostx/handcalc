@@ -21,7 +21,7 @@ export interface AiVisionProvider {
 export class AiRequestError extends Error {}
 
 export const PROVIDER_LABELS: Record<AiProviderName, string> = {
-  groq: "Groq (Llama 4 Maverick) — free",
+  groq: "Groq (Qwen 3.6 27B vision) — free",
   gemini: "Google Gemini (2.5 Flash) — needs billing",
   openrouter: "OpenRouter (Gemma 4 vision) — free",
   mock: "Mock (testing, no API key needed)"
