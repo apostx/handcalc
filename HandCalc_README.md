@@ -570,6 +570,25 @@ Add at least 20 exercises before improving the generator.
 
 ---
 
+## Getting a free Groq API key
+
+The app calls the AI provider directly from your browser with your own key —
+there is no backend, and the key is never sent to any server of ours. Groq has
+a free tier that needs no credit card:
+
+1. Go to <https://console.groq.com> and sign in (Google, GitHub, or email).
+2. Open **API Keys** at <https://console.groq.com/keys>.
+3. Click **Create API Key**, give it a name (e.g. `handcalc`), and copy the
+   key — it starts with `gsk_`. It is shown only once, so copy it right away.
+4. In HandCalc, open **Settings**, choose the **Groq** provider, and paste the
+   key into the **API key** field.
+5. Optionally tick **Remember API key on this device** so it survives a refresh
+   (it is stored only in your browser's `localStorage`, never uploaded).
+
+The free tier is rate-limited (roughly 1,000 requests/day) but is plenty for
+practice. **OpenRouter** works the same way — create a key at
+<https://openrouter.ai/keys> and pick the OpenRouter provider instead.
+
 ## AI provider abstraction
 
 Create a common interface.
