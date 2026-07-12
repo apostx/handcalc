@@ -133,7 +133,7 @@ export default function App({ initialProvider }: AppProps) {
       setFeedback(result);
     } catch (err) {
       if (err instanceof AiResponseParseError) {
-        setError("The AI response could not be processed. Try again.");
+        setError(err.message);
       } else if (err instanceof AiRequestError) {
         setError(err.message);
       } else {

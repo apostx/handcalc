@@ -13,6 +13,10 @@ export type OpenAiCompatibleConfig = {
   label: string;
   /** Send response_format: json_object. Not every model supports it. */
   jsonMode: boolean;
+  /** Cap the completion so a runaway response can't burn the token budget. */
+  maxTokens?: number;
+  /** Groq/Qwen: "none" turns off the model's chain-of-thought. */
+  reasoningEffort?: string;
   extraHeaders?: Record<string, string>;
 };
 
@@ -30,6 +34,12 @@ export async function evaluateOpenAiCompatible(
     body: JSON.stringify({
       model: config.model,
       temperature: 0.2,
+      ...(config.maxTokens
+        ? { max_completion_tokens: config.maxTokens }
+        : {}),
+      ...(config.reasoningEffort
+        ? { reasoning_effort: config.reasoningEffort }
+        : {}),
       ...(config.jsonMode
         ? { response_format: { type: "json_object" } }
         : {}),
