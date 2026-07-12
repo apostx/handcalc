@@ -7,8 +7,20 @@ export async function readApiErrorMessage(
 ): Promise<string> {
   try {
     const data = await response.json();
-    const message = data?.error?.message ?? data?.message;
-    if (typeof message === "string" && message.trim()) return message.trim();
+    const error = data?.error ?? data;
+    let message: string =
+      typeof error?.message === "string" ? error.message.trim() : "";
+
+    // OpenRouter tucks the useful upstream detail (e.g. "temporarily
+    // rate-limited") into error.metadata.raw; append it when present.
+    const raw = error?.metadata?.raw;
+    const rawText =
+      typeof raw === "string" ? raw.trim() : raw ? JSON.stringify(raw) : "";
+    if (rawText && rawText !== message) {
+      message = message ? `${message} — ${rawText}` : rawText;
+    }
+
+    if (message) return message;
   } catch {
     // Body was not JSON; fall through to the status-only message.
   }

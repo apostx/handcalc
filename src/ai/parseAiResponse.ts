@@ -14,6 +14,12 @@ const aiResponseSchema = z.object({
 
 export class AiResponseParseError extends Error {}
 
+// Reasoning models (e.g. Qwen on Groq) prepend a <think>...</think> block,
+// which can contain LaTeX braces and derail JSON extraction. Drop it first.
+function stripReasoning(text: string): string {
+  return text.replace(/<think>[\s\S]*?<\/think>/gi, "");
+}
+
 // Models sometimes wrap JSON in code fences or add stray text; extract the
 // outermost JSON object before parsing.
 function extractJsonObject(text: string): string {
@@ -28,7 +34,7 @@ function extractJsonObject(text: string): string {
 export function parseAiResponse(rawText: string): AiEvaluationResult {
   let json: unknown;
   try {
-    json = JSON.parse(extractJsonObject(rawText));
+    json = JSON.parse(extractJsonObject(stripReasoning(rawText)));
   } catch (err) {
     if (err instanceof AiResponseParseError) throw err;
     throw new AiResponseParseError("AI response is not valid JSON.");

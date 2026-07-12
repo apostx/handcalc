@@ -12,8 +12,10 @@ export class GroqProvider implements AiVisionProvider {
   requiresApiKey = true;
 
   evaluate(input: AiEvaluationInput): Promise<AiEvaluationResult> {
+    // Qwen is a reasoning model; Groq's json_object mode rejects its
+    // <think> preamble, so rely on the prompt + JSON extraction instead.
     return evaluateOpenAiCompatible(
-      { url: GROQ_URL, model: GROQ_MODEL, label: "Groq", jsonMode: true },
+      { url: GROQ_URL, model: GROQ_MODEL, label: "Groq", jsonMode: false },
       input
     );
   }
