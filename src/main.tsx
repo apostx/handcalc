@@ -4,7 +4,11 @@ import "katex/dist/katex.min.css";
 import "./index.css";
 import App from "./App";
 import type { AiProviderName } from "./providers/types";
-import { saveApiKey, saveRememberFlag } from "./storage/apiKeyStorage";
+import {
+  saveApiKey,
+  saveRememberFlag,
+  saveSelectedProvider
+} from "./storage/apiKeyStorage";
 import { consumeSharedKeys } from "./storage/shareLink";
 
 // Keys arriving via a share link are persisted immediately so the recipient
@@ -15,6 +19,7 @@ if (shared) {
   for (const [provider, key] of Object.entries(shared.keys)) {
     if (key) saveApiKey(provider as AiProviderName, key);
   }
+  if (shared.provider) saveSelectedProvider(shared.provider);
 }
 
 createRoot(document.getElementById("root")!).render(

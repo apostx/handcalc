@@ -25,8 +25,10 @@ import {
 import {
   loadApiKey,
   loadRememberFlag,
+  loadSelectedProvider,
   saveApiKey,
-  saveRememberFlag
+  saveRememberFlag,
+  saveSelectedProvider
 } from "./storage/apiKeyStorage";
 import type { Exercise, Topic } from "./types/exercise";
 import type { AiEvaluationResult } from "./types/feedback";
@@ -42,8 +44,13 @@ export default function App({ initialProvider }: AppProps) {
   const [screen, setScreen] = useState<Screen>("start");
 
   const [provider, setProvider] = useState<AiProviderName>(
-    initialProvider ?? "mock"
+    initialProvider ?? loadSelectedProvider() ?? "mock"
   );
+
+  function handleProviderChange(next: AiProviderName) {
+    setProvider(next);
+    saveSelectedProvider(next);
+  }
   const [rememberKey, setRememberKey] = useState(loadRememberFlag);
   const [apiKeys, setApiKeys] = useState<Record<AiProviderName, string>>(() => {
     const remember = loadRememberFlag();
@@ -157,7 +164,7 @@ export default function App({ initialProvider }: AppProps) {
           provider={provider}
           apiKeys={apiKeys}
           rememberKey={rememberKey}
-          onProviderChange={setProvider}
+          onProviderChange={handleProviderChange}
           onApiKeyChange={handleApiKeyChange}
           onRememberKeyChange={handleRememberKeyChange}
         />
